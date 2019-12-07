@@ -12,7 +12,7 @@
     "url": "git+https://github.com/Captaincheq/work.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Alec Mabhiza Chirawu",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/Captaincheq/work/issues"
@@ -20,14 +20,17 @@
   "homepage": "https://github.com/Captaincheq/work#readme",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
     "connect-flash": "^0.1.1",
     "dotenv": "^8.2.0",
     "ejs": "^2.7.4",
     "express": "^4.17.1",
     "express-ejs-layouts": "^2.5.0",
+    "express-handlebars": "^3.1.0",
     "express-session": "^1.17.0",
     "mongodb": "^3.3.4",
     "mongoose": "^5.7.12",
+    "nodemailer": "^6.4.0",
     "passport": "^0.4.0",
     "passport-local": "^1.0.0"
   },
