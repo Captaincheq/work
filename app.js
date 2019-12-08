@@ -1,64 +1,75 @@
 const express = require('express');
-const expressLayouts = require('express-ejs-layouts');
-const mongoose = require('mongoose');
-const passport = require('passport');
-const flash = require('connect-flash');
-const session = require('express-session');
+const bodyParser = require('body-parser');
+const exphbs = require('express-handlebars');
+const path = require('path');
+const nodemailer = require('nodemailer');
 
-const app = express();
+const contact = express();
 
-// Passport Config
-require('./config/passport')(passport);
+// View engine setup 
+contact.engine('handlebars', exphbs());
+contact.set('view engine', 'handlerbars');
 
-// DB Config
-const db = require('./config/keys').mongoURI;
+//static folder
+contact.use('/public', express.static(path.join(__dirname, 'public')));
 
-// Connect to MongoDB
-mongoose
-  .connect(
-    db, {
-      useNewUrlParser: true
-    }
-  )
-  .then(() => console.log('MongoDB Connected'))
-  .catch(err => console.log(err));
+contact.use(bodyParser.urlencoded({ extended: false}));
+contact.use(bodyParser.json());
 
-// EJS
-app.use(expressLayouts);
-app.set('view engine', 'ejs');
-
-// Express body parser
-app.use(express.urlencoded({
-  extended: true
-}));
-
-// Express session
-app.use(
-  session({
-    secret: 'secret',
-    resave: true,
-    saveUninitialized: true
-  })
-);
-
-// Passport middleware
-app.use(passport.initialize());
-app.use(passport.session());
-
-// Connect flash
-app.use(flash());
-// Global variables
-app.use(function (req, res, next) {
-  res.locals.success_msg = req.flash('success_msg');
-  res.locals.error_msg = req.flash('error_msg');
-  res.locals.error = req.flash('error');
-  next();
+//Body Parser Middleware
+contact.get('/', (req,res) => {
+    res.render('index');
 });
 
-// Routes
-app.use('/', require('./routes/index.js'));
-app.use('/users', require('./routes/users.js'));
+contact.post('/send', (req,res) => {
+    const output = `
+    <p>You have a new contact request</p>
+    <h3>Contact Details</h3>
+    <ul>
+    <li>Name: ${req.body.name}</li>
+    <li>Email: ${req.body.email}</li>
+    <li>Guest: ${req.body.guest}</li>
+    <li>Event: ${req.body.event}</li>
+    </ul>
+    <h3>Message</h3>
+    <p>${req.body.message}</p>
+`;
 
-const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, console.log(`Server started on port ${PORT}`));
+//Create reusable transporter object using the default SMTP transport
+    let transporter = nodemailer.createTransport({
+        host: "mail.google.com",
+        port: 587,
+        secure: false, // true for 465, false for other ports
+        auth: {
+          user: 'alecmabhizachirawu@gmail.com', // generated ethereal user
+          pass: 'Chirawu123412' // generated ethereal password
+        },
+        tls:{
+            rejectUnauthorized:false
+        }
+    });
+    
+      // send mail with defined transport object
+      let mailOptions = {
+        from: '"Nodemailer Contact" <alecmabhizachirawu@gmail.com>', // sender address
+        to: 'alecmabhizachirawu@gmail.com', // list of receivers
+        subject: "Node contact Request", // Subject line
+        text: "Hello world?", // plain text body
+        html: output // html body
+      };
+    
+      transporter.sendMail(mailOptions, (error, info) => {
+          if (error) {
+              return console.log(error);
+          }
+      
+      // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+    console.log('Message sent: %s', info.messageId);
+      // Preview only available when sending through an Ethereal account
+      console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+      // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
+      
+});
+});
+contact.listen(5000,() => console.log('Server started...'));
