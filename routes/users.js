@@ -18,7 +18,7 @@ router.post('/register', (req, res) => {
   let errors = [];
 
   if (!name || !email || !password || !password2) {
-    errors.push({ msg: 'Please enter all fields' });
+    errors.push({ msg: 'missing information ,please fill in!' });
   }
 
   if (password != password2) {
@@ -26,7 +26,7 @@ router.post('/register', (req, res) => {
   }
 
   if (password.length < 6) {
-    errors.push({ msg: 'Password must be at least 6 characters' });
+    errors.push({ msg: 'Password must be at least 6 characters and including numbers' });
   }
 
   if (errors.length > 0) {
@@ -64,7 +64,7 @@ router.post('/register', (req, res) => {
               .then(user => {
                 req.flash(
                   'success_msg',
-                  'You are now registered and can log in'
+                  'Login succeful'
                 );
                 res.redirect('/users/login');
               })
